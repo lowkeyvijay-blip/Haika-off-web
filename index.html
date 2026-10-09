@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Haika — Digital Systems Studio</title>
+<meta name="description" content="Haika is a digital systems studio from India. Websites, conversation and automation — designed as one connected system.">
+<meta name="theme-color" content="#f1efe9">
+<meta name="color-scheme" content="light">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23080807'/%3E%3Ctext x='16' y='22' font-size='18' text-anchor='middle' fill='%23a48a5a' font-family='monospace'%3E%E2%9C%B3%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://d2ol7oe51mr4n9.cloudfront.net" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/home.css">
+<script>document.documentElement.className="js";</script>
+<script src="assets/js/config.js"></script>
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<div class="boot" id="boot">
+  <div class="mark">HAIKA</div>
+  <div class="pct" id="bootPct" role="status" aria-live="polite">LOADING 0%</div>
+  <div class="bar"><i id="bootBar"></i></div>
+</div>
+
+<div class="stage" id="stage" style="background-image:url(data:image/jpeg;base64,/9j//gAQTGF2YzYyLjI4LjEwMgD/2wBDAAg8PEc8R1JSUlJSUmFaYWVlZWFhYWFlZWVsbGx/f39sbGxlZWxseHh/f4qOioODf4OOjpaWlrS0rKzS0tn/////xABaAAADAQEBAQAAAAAAAAAAAAAFAgABBAMHAQEBAQAAAAAAAAAAAAAAAAABAAIQAQACAwEBAQAAAAAAAAAAAAASARExAgMyYREBAAAAAAAAAAAAAAAAAAAAAP/AABEIABcAKAMBIgACEQADEQD/2gAMAwEAAhEDEQA/APqcVgYDu9AhGaddVmnjrl2efyCSJYjjCycpmlA0P0XMgkkwp//Z);background-size:cover;background-position:50% 50%;">
+  <img class="stage__poster" id="heroPoster" src="assets/hero-poster.jpg" width="1600" height="900"
+       alt="" aria-hidden="true" fetchpriority="high" decoding="async">
+  <!--
+    Video: 1920x1080, 10.04s, 241 all-intra/keyframe friendly frames, which
+    makes frame-accurate scroll scrubbing practical. It is an enhancement:
+    the poster above is already a complete hero if the clip never arrives.
+  -->
+  <video id="clip" muted playsinline preload="none" disablepictureinpicture></video>
+  <div class="stage__plane" aria-hidden="true"></div>
+  <div class="veil"></div>
+  <div class="grain"></div>
+</div>
+
+<header class="nav" id="nav">
+  <a class="wordmark" href="./" aria-label="Haika — home"><span class="star" aria-hidden="true">&#10035;</span> HAIKA</a>
+  <nav class="nav__links" aria-label="Primary">
+    <a href="#work">WORK</a>
+    <a href="#systems">SYSTEMS</a>
+    <a href="#about">ABOUT</a>
+    <a class="pill" href="start/">START A BRIEF</a>
+  </nav>
+  <button class="nav__toggle" id="navToggle" type="button"
+          aria-expanded="false" aria-controls="navmenu" aria-label="Open menu"><span></span></button>
+</header>
+
+<div class="navmenu" id="navmenu" data-open="false">
+  <nav aria-label="Mobile">
+    <ol>
+      <li><a href="#work"><span>Work</span><span class="idx" aria-hidden="true">01</span></a></li>
+      <li><a href="#systems"><span>Systems</span><span class="idx" aria-hidden="true">02</span></a></li>
+      <li><a href="#about"><span>About</span><span class="idx" aria-hidden="true">03</span></a></li>
+      <li><a href="start/"><span>Start a brief</span><span class="idx" aria-hidden="true">04</span></a></li>
+    </ol>
+  </nav>
+  <div class="navmenu__foot">
+    <span>Haika — Digital systems studio</span>
+    <span>India</span>
+    <a class="js-only" data-contact-link="text" href="#">Email</a>
+  </div>
+</div>
+
+<main id="main">
+
+  <div class="panels" id="panels">
+    <section class="panel" data-panel data-align="center">
+      <div class="eyebrow">Digital systems studio &middot; Haika</div>
+      <h1>Your business,<br>connected.</h1>
+<p>Websites, chatbots, workflows and backends &mdash; connected and organized with AI, so running the business gets easier, not busier.</p>
+<div class="panel__actions">
+<a class="btn btn--gold" href="start/">Start a brief</a>
+<a class="cta" href="#systems">Explore the system</a>
+</div>
+</section>
+
+    <section class="panel" data-panel>
+      <div class="eyebrow">01 &middot; Presence</div>
+      <h2>A website<br>should do more than exist.</h2>
+      <p>We design premium digital experiences that make a business feel as considered online as it is in the real world.</p>
+      <a class="cta" href="#work">See our work</a>
+    </section>
+
+    <section class="panel" data-panel>
+      <div class="eyebrow">02 &middot; Conversation</div>
+      <h2>Then let it<br>answer back.</h2>
+      <p>AI chatbots and voice receptionists turn a static presence into something that can respond, guide and handle the repetitive work.</p>
+      <a class="cta" href="#work">See it in the work</a>
+    </section>
+
+    <section class="panel" data-panel>
+      <div class="eyebrow">03 &middot; Automation</div>
+      <h2>The quiet work<br>should stay quiet.</h2>
+      <p>Workflows, databases and the tools already running a business &mdash; connected with AI, so information moves and actions happen on their own.</p>
+      <a class="cta" href="#systems">See how it connects</a>
+    </section>
+
+    <section class="panel" data-panel data-align="center">
+      <div class="eyebrow">Built by Haika &middot; India</div>
+      <h2>Build the system<br>behind the business.</h2>
+      <p>Websites, conversation and automation &mdash; designed as one connected experience.</p>
+      <a class="cta" href="start/">Start a brief</a>
+    </section>
+  </div>
+
+  <div class="track" id="track" aria-hidden="true"></div>
+
+  <div class="content">
+
+    <!-- ==================== SELECTED WORK ==================== -->
+    <section class="section" id="work" aria-labelledby="workTitle">
+      <div class="section__head" data-reveal>
+        <div class="label">Selected work</div>
+        <h2 class="section__title" id="workTitle">Two systems, built end to end.</h2>
+        <p class="section__note">Haika designed, built and deployed both of these as demonstrations. Everything below describes what each build actually does &mdash; no client-reported results are claimed for either.</p>
+      </div>
+
+      <div class="cases">
+
+        <article class="case" data-reveal aria-labelledby="case1Name">
+          <header class="case__head">
+            <span class="case__idx" aria-hidden="true">01</span>
+            <div class="case__id">
+              <h3 class="case__client" id="case1Name">Amrita Dental</h3>
+              <p class="case__sub">SmileCare Dental &amp; Maxillofacial Center &middot; Hyderabad</p>
+            </div>
+            <ul class="case__badges">
+              <li>Website</li>
+              <li>AI chat</li>
+              <li>Staff system</li>
+              <li data-kind="status">Demo</li>
+            </ul>
+          </header>
+
+          <div class="case__grid">
+            <ol class="chain">
+              <li style="--d:.05s">
+                <dl><dt>Client</dt>
+                <dd>Amrita Dental &mdash; SmileCare Dental &amp; Maxillofacial Center, a dental practice in Hyderabad.</dd></dl>
+              </li>
+              <li style="--d:.14s">
+                <dl><dt>Problem</dt>
+                <dd>Two audiences, two different needs: a patient deciding whether to trust the practice before ever calling, and staff keeping a day&rsquo;s appointments straight without a shared view of it.</dd></dl>
+              </li>
+              <li style="--d:.23s">
+                <dl><dt>What Haika built</dt>
+                <dd>A public website with appointment requests, WhatsApp contact and an embedded AI assistant &mdash; plus a separate staff admin with an appointment dashboard, status tracking and a rolling week view.</dd></dl>
+              </li>
+              <li style="--d:.32s">
+                <dl><dt>System</dt>
+                <dd><ul class="syslist">
+                  <li>Public website</li><li>AI chat</li><li>Staff admin</li><li>Appointment records</li>
+                </ul></dd>
+              </li>
+              <li style="--d:.41s">
+                <dl><dt>Interaction / demo</dt>
+                <dd>
+                  <div class="demo">
+                    <a href="https://amrita-s-dentist.vercel.app/" target="_blank" rel="noopener">
+                      <span>Open the public site</span><span class="host">amrita-s-dentist.vercel.app</span></a>
+                    <a href="https://admin-dentist-portal.vercel.app/" target="_blank" rel="noopener">
+                      <span>Open the staff system</span><span class="host">admin-dentist-portal.vercel.app</span></a>
+                  </div>
+                </dd>
+              </li>
+              <li data-emph style="--d:.5s">
+                <dl><dt>Result / status</dt>
+                <dd><strong>Live demo.</strong> Both surfaces are deployed and explorable. No performance figures are attached to it.</dd></dl>
+              </li>
+            </ol>
+
+            <div class="plates">
+              <figure class="work-plate" data-plate
+                      data-src="https://amrita-s-dentist.vercel.app/"
+                      data-title="Amrita Dental — public website preview">
+                <div class="work-plate__bar">
+                  <span class="kind">Surface 01 — Website</span>
+                  <span class="host">amrita-s-dentist.vercel.app</span>
+                </div>
+                <div class="work-plate__frame">
+                  <img class="work-plate__poster" src="assets/amrita-dental-web.jpg"
+                       srcset="assets/amrita-dental-web.jpg 1600w, assets/amrita-dental-web@2x.jpg 3200w"
+                       sizes="(max-width:1000px) calc(100vw - 48px), 560px"
+                       width="1600" height="900"
+                       alt="Amrita Dental — SmileCare Dental &amp; Maxillofacial Center website home page"
+                       loading="lazy" decoding="async">
+                </div>
+                <figcaption class="work-plate__meta">
+                  <span class="work-plate__tag">Website &middot; public</span>
+                  <a class="work-plate__cta" href="https://amrita-s-dentist.vercel.app/" target="_blank" rel="noopener">View live site<span class="work-plate__arrow" aria-hidden="true">&#8599;</span></a>
+                </figcaption>
+              </figure>
+
+              <figure class="work-plate" data-plate
+                      data-src="https://admin-dentist-portal.vercel.app/"
+                      data-title="Amrita Dental — staff admin preview">
+                <div class="work-plate__bar">
+                  <span class="kind">Surface 02 — Staff system</span>
+                  <span class="host">admin-dentist-portal.vercel.app</span>
+                </div>
+                <div class="work-plate__frame">
+                  <img class="work-plate__poster" src="assets/amrita-dental-system.jpg"
+                       srcset="assets/amrita-dental-system.jpg 1600w, assets/amrita-dental-system@2x.jpg 3200w"
+                       sizes="(max-width:1000px) calc(100vw - 48px), 560px"
+                       width="1600" height="900"
+                       alt="Amrita Dental — staff admin dashboard showing appointments and status"
+                       loading="lazy" decoding="async">
+                </div>
+                <figcaption class="work-plate__meta">
+                  <span class="work-plate__tag">System &middot; staff</span>
+                  <a class="work-plate__cta" href="https://admin-dentist-portal.vercel.app/" target="_blank" rel="noopener">View system<span class="work-plate__arrow" aria-hidden="true">&#8599;</span></a>
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </article>
+
+        <article class="case" data-reveal aria-labelledby="case2Name">
+          <header class="case__head">
+            <span class="case__idx" aria-hidden="true">02</span>
+            <div class="case__id">
+              <h3 class="case__client" id="case2Name">Bel Posto</h3>
+              <p class="case__sub">Garden cafe &middot; Jubilee Hills, Hyderabad</p>
+            </div>
+            <ul class="case__badges">
+              <li>Website</li>
+              <li>Reservations</li>
+              <li>Staff system</li>
+              <li data-kind="status">Demo</li>
+            </ul>
+          </header>
+
+          <div class="case__grid">
+            <ol class="chain">
+              <li style="--d:.05s">
+                <dl><dt>Client</dt>
+                <dd>Bel Posto &mdash; a garden cafe in Jubilee Hills, Hyderabad.</dd></dl>
+              </li>
+              <li style="--d:.14s">
+                <dl><dt>Problem</dt>
+                <dd>A venue sells itself on atmosphere. The online surface has to carry the same rooms, menu and calendar of events &mdash; and still turn a browsing guest into a table booking.</dd></dl>
+              </li>
+              <li style="--d:.23s">
+                <dl><dt>What Haika built</dt>
+                <dd>A public site organised around menu, gallery, events and reservations, paired with a staff admin that handles reservations and service.</dd></dl>
+              </li>
+              <li style="--d:.32s">
+                <dl><dt>System</dt>
+                <dd><ul class="syslist">
+                  <li>Public website</li><li>Reservations</li><li>Staff admin</li><li>Gallery &amp; events</li>
+                </ul></dd>
+              </li>
+              <li style="--d:.41s">
+                <dl><dt>Interaction / demo</dt>
+                <dd>
+                  <div class="demo">
+                    <a href="https://bel-pesto-cafe.vercel.app/" target="_blank" rel="noopener">
+                      <span>Open the public site</span><span class="host">bel-pesto-cafe.vercel.app</span></a>
+                    <a href="https://admin-cafe-portal.vercel.app/" target="_blank" rel="noopener">
+                      <span>Open the staff system</span><span class="host">admin-cafe-portal.vercel.app</span></a>
+                  </div>
+                </dd>
+              </li>
+              <li data-emph style="--d:.5s">
+                <dl><dt>Result / status</dt>
+                <dd><strong>Live demo.</strong> Both surfaces are deployed and explorable. No performance figures are attached to it.</dd></dl>
+              </li>
+            </ol>
+
+            <div class="plates">
+              <figure class="work-plate" data-plate
+                      data-src="https://bel-pesto-cafe.vercel.app/"
+                      data-title="Bel Posto — public website preview">
+                <div class="work-plate__bar">
+                  <span class="kind">Surface 01 — Website</span>
+                  <span class="host">bel-pesto-cafe.vercel.app</span>
+                </div>
+                <div class="work-plate__frame">
+                  <img class="work-plate__poster" src="assets/bel-pesto-web.jpg"
+                       srcset="assets/bel-pesto-web.jpg 1600w, assets/bel-pesto-web@2x.jpg 3200w"
+                       sizes="(max-width:1000px) calc(100vw - 48px), 560px"
+                       width="1600" height="900"
+                       alt="Bel Posto — garden cafe website home page"
+                       loading="lazy" decoding="async">
+                </div>
+                <figcaption class="work-plate__meta">
+                  <span class="work-plate__tag">Website &middot; public</span>
+                  <a class="work-plate__cta" href="https://bel-pesto-cafe.vercel.app/" target="_blank" rel="noopener">View live site<span class="work-plate__arrow" aria-hidden="true">&#8599;</span></a>
+                </figcaption>
+              </figure>
+
+              <figure class="work-plate" data-plate
+                      data-src="https://admin-cafe-portal.vercel.app/"
+                      data-title="Bel Posto — staff admin preview">
+                <div class="work-plate__bar">
+                  <span class="kind">Surface 02 — Staff system</span>
+                  <span class="host">admin-cafe-portal.vercel.app</span>
+                </div>
+                <div class="work-plate__frame">
+                  <img class="work-plate__poster" src="assets/bel-pesto-system.jpg"
+                       srcset="assets/bel-pesto-system.jpg 1600w, assets/bel-pesto-system@2x.jpg 3200w"
+                       sizes="(max-width:1000px) calc(100vw - 48px), 560px"
+                       width="1600" height="900"
+                       alt="Bel Posto — staff admin for reservations and service"
+                       loading="lazy" decoding="async">
+                </div>
+                <figcaption class="work-plate__meta">
+                  <span class="work-plate__tag">System &middot; staff</span>
+                  <a class="work-plate__cta" href="https://admin-cafe-portal.vercel.app/" target="_blank" rel="noopener">View system<span class="work-plate__arrow" aria-hidden="true">&#8599;</span></a>
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ==================== THE SYSTEM ==================== -->
+    <section class="section" id="systems" aria-labelledby="sysTitleH">
+      <div class="section__head" data-reveal>
+        <div class="label">The system</div>
+        <h2 class="section__title" id="sysTitleH">Presence, conversation, automation &mdash; drawn as one assembly.</h2>
+        <p class="section__note">Haika draws the whole thing before building any of it: the surface people arrive on, the layer that answers them, and the machinery that runs underneath. All three land on the same structure.</p>
+      </div>
+
+      <div class="sys__board" data-reveal>
+<svg class="sys__drawing" viewBox="-154 -66 264 164" role="img" aria-labelledby="sysTitle sysDesc" preserveAspectRatio="xMidYMid meet"><title id="sysTitle">Haika system assembly</title><desc id="sysDesc">An axonometric line drawing of three stacked decks assembling into one structure: a base deck carrying a standing website screen, a middle deck of connected conversation nodes, and a top deck of automation nodes linked to the middle deck by dashed conduits.</desc><g data-stage="1"><polygon class="fill-a" points="0.00,-6.00 65.82,32.00 17.32,60.00 -48.50,22.00"/><polygon class="fill-c" points="-48.50,22.00 17.32,60.00 17.32,66.00 -48.50,28.00"/><polygon class="fill-c" points="65.82,32.00 17.32,60.00 17.32,66.00 65.82,38.00"/><polygon class="edge" points="0.00,-6.00 65.82,32.00 17.32,60.00 -48.50,22.00"/><polygon class="fill-c" points="-22.52,-1.00 1.73,13.00 -0.87,14.50 -25.11,0.50"/><polygon class="fill-c" points="-25.11,0.50 -0.87,14.50 -0.87,46.50 -25.11,32.50"/><polygon class="fill-c" points="1.73,13.00 -0.87,14.50 -0.87,46.50 1.73,45.00"/><polygon class="edge" points="-25.11,0.50 -0.87,14.50 -0.87,46.50 -25.11,32.50"/><line class="edge-soft" x1="-22.52" y1="9.00" x2="-3.46" y2="20.00"/><line class="edge-soft" x1="-22.52" y1="16.00" x2="-3.46" y2="27.00"/><line class="edge-soft" x1="-22.52" y1="23.00" x2="-3.46" y2="34.00"/></g><g data-stage="2"><polygon class="fill-a" points="0.00,-12.00 3.46,-10.00 0.00,-8.00 -3.46,-10.00"/><polygon class="fill-c" points="-3.46,-10.00 0.00,-8.00 0.00,12.00 -3.46,10.00"/><polygon class="fill-c" points="3.46,-10.00 0.00,-8.00 0.00,12.00 3.46,10.00"/><polygon class="edge-soft" points="0.00,-12.00 3.46,-10.00 0.00,-8.00 -3.46,-10.00"/><polygon class="fill-a" points="41.57,12.00 45.03,14.00 41.57,16.00 38.10,14.00"/><polygon class="fill-c" points="38.10,14.00 41.57,16.00 41.57,36.00 38.10,34.00"/><polygon class="fill-c" points="45.03,14.00 41.57,16.00 41.57,36.00 45.03,34.00"/><polygon class="edge-soft" points="41.57,12.00 45.03,14.00 41.57,16.00 38.10,14.00"/><polygon class="fill-a" points="-25.98,3.00 -22.52,5.00 -25.98,7.00 -29.44,5.00"/><polygon class="fill-c" points="-29.44,5.00 -25.98,7.00 -25.98,27.00 -29.44,25.00"/><polygon class="fill-c" points="-22.52,5.00 -25.98,7.00 -25.98,27.00 -22.52,25.00"/><polygon class="edge-soft" points="-25.98,3.00 -22.52,5.00 -25.98,7.00 -29.44,5.00"/><polygon class="fill-a" points="15.59,27.00 19.05,29.00 15.59,31.00 12.12,29.00"/><polygon class="fill-c" points="12.12,29.00 15.59,31.00 15.59,51.00 12.12,49.00"/><polygon class="fill-c" points="19.05,29.00 15.59,31.00 15.59,51.00 19.05,49.00"/><polygon class="edge-soft" points="15.59,27.00 19.05,29.00 15.59,31.00 12.12,29.00"/><polygon class="fill-b" points="1.73,-23.00 50.23,5.00 15.59,25.00 -32.91,-3.00"/><polygon class="fill-b" points="-32.91,-3.00 15.59,25.00 15.59,31.00 -32.91,3.00"/><polygon class="fill-b" points="50.23,5.00 15.59,25.00 15.59,31.00 50.23,11.00"/><polygon class="edge-gold" points="1.73,-23.00 50.23,5.00 15.59,25.00 -32.91,-3.00"/><polygon class="node" points="3.46,-18.00 9.53,-14.50 3.46,-11.00 -2.60,-14.50"/><polygon class="fill-c" points="-2.60,-14.50 3.46,-11.00 3.46,-5.00 -2.60,-8.50"/><polygon class="fill-c" points="9.53,-14.50 3.46,-11.00 3.46,-5.00 9.53,-8.50"/><polygon class="node-on" points="5.20,-3.00 11.26,0.50 5.20,4.00 -0.87,0.50"/><polygon class="fill-c" points="-0.87,0.50 5.20,4.00 5.20,10.00 -0.87,6.50"/><polygon class="fill-c" points="11.26,0.50 5.20,4.00 5.20,10.00 11.26,6.50"/><polygon class="node" points="29.44,-1.00 35.51,2.50 29.44,6.00 23.38,2.50"/><polygon class="fill-c" points="23.38,2.50 29.44,6.00 29.44,12.00 23.38,8.50"/><polygon class="fill-c" points="35.51,2.50 29.44,6.00 29.44,12.00 35.51,8.50"/><line class="edge-soft" x1="3.46" y1="-14.50" x2="5.20" y2="0.50"/><line class="edge-soft" x1="5.20" y1="0.50" x2="29.44" y2="2.50"/><polygon class="fill-a" points="-6.93,-12.00 -3.46,-10.00 -6.93,-8.00 -10.39,-10.00"/><polygon class="fill-c" points="-10.39,-10.00 -6.93,-8.00 -6.93,12.00 -10.39,10.00"/><polygon class="fill-c" points="-3.46,-10.00 -6.93,-8.00 -6.93,12.00 -3.46,10.00"/><polygon class="edge-soft" points="-6.93,-12.00 -3.46,-10.00 -6.93,-8.00 -10.39,-10.00"/></g><g data-stage="3"><polygon class="fill-a" points="3.46,-30.00 6.93,-28.00 3.46,-26.00 0.00,-28.00"/><polygon class="fill-c" points="0.00,-28.00 3.46,-26.00 3.46,-6.00 0.00,-8.00"/><polygon class="fill-c" points="6.93,-28.00 3.46,-26.00 3.46,-6.00 6.93,-8.00"/><polygon class="edge-soft" points="3.46,-30.00 6.93,-28.00 3.46,-26.00 0.00,-28.00"/><polygon class="fill-a" points="24.25,-18.00 27.71,-16.00 24.25,-14.00 20.78,-16.00"/><polygon class="fill-c" points="20.78,-16.00 24.25,-14.00 24.25,6.00 20.78,4.00"/><polygon class="fill-c" points="27.71,-16.00 24.25,-14.00 24.25,6.00 27.71,4.00"/><polygon class="edge-soft" points="24.25,-18.00 27.71,-16.00 24.25,-14.00 20.78,-16.00"/><polygon class="fill-a" points="-10.39,-22.00 -6.93,-20.00 -10.39,-18.00 -13.86,-20.00"/><polygon class="fill-c" points="-13.86,-20.00 -10.39,-18.00 -10.39,2.00 -13.86,0.00"/><polygon class="fill-c" points="-6.93,-20.00 -10.39,-18.00 -10.39,2.00 -6.93,0.00"/><polygon class="edge-soft" points="-10.39,-22.00 -6.93,-20.00 -10.39,-18.00 -13.86,-20.00"/><polygon class="fill-a" points="10.39,-10.00 13.86,-8.00 10.39,-6.00 6.93,-8.00"/><polygon class="fill-c" points="6.93,-8.00 10.39,-6.00 10.39,14.00 6.93,12.00"/><polygon class="fill-c" points="13.86,-8.00 10.39,-6.00 10.39,14.00 13.86,12.00"/><polygon class="edge-soft" points="10.39,-10.00 13.86,-8.00 10.39,-6.00 6.93,-8.00"/><polygon class="fill-a" points="3.46,-40.00 34.64,-22.00 13.86,-10.00 -17.32,-28.00"/><polygon class="fill-a" points="-17.32,-28.00 13.86,-10.00 13.86,-4.00 -17.32,-22.00"/><polygon class="fill-a" points="34.64,-22.00 13.86,-10.00 13.86,-4.00 34.64,-16.00"/><polygon class="edge" points="3.46,-40.00 34.64,-22.00 13.86,-10.00 -17.32,-28.00"/><polygon class="node-on" points="3.46,-39.00 8.66,-36.00 3.46,-33.00 -1.73,-36.00"/><polygon class="fill-c" points="-1.73,-36.00 3.46,-33.00 3.46,-28.00 -1.73,-31.00"/><polygon class="fill-c" points="8.66,-36.00 3.46,-33.00 3.46,-28.00 8.66,-31.00"/><polygon class="node" points="19.05,-30.00 24.25,-27.00 19.05,-24.00 13.86,-27.00"/><polygon class="fill-b" points="13.86,-27.00 19.05,-24.00 19.05,-19.00 13.86,-22.00"/><polygon class="fill-b" points="24.25,-27.00 19.05,-24.00 19.05,-19.00 24.25,-22.00"/><polygon class="node" points="-6.93,-33.00 -1.73,-30.00 -6.93,-27.00 -12.12,-30.00"/><polygon class="fill-c" points="-12.12,-30.00 -6.93,-27.00 -6.93,-22.00 -12.12,-25.00"/><polygon class="fill-c" points="-1.73,-30.00 -6.93,-27.00 -6.93,-22.00 -1.73,-25.00"/><polygon class="node" points="8.66,-24.00 13.86,-21.00 8.66,-18.00 3.46,-21.00"/><polygon class="fill-b" points="3.46,-21.00 8.66,-18.00 8.66,-13.00 3.46,-16.00"/><polygon class="fill-b" points="13.86,-21.00 8.66,-18.00 8.66,-13.00 13.86,-16.00"/><line class="dashed" x1="3.46" y1="-31.00" x2="3.46" y2="-14.50"/><line class="dashed" x1="19.05" y1="-22.00" x2="5.20" y2="0.50"/><line class="dashed" x1="-6.93" y1="-25.00" x2="29.44" y2="2.50"/><line class="dashed" x1="8.66" y1="-16.00" x2="3.46" y2="-14.50"/></g><g data-stage="1"><line class="leader" x1="-62" y1="22" x2="-49.6" y2="22"/><text class="draw-lbl draw-lbl--gold" x="-66" y="25" text-anchor="end">01 PRESENCE</text></g><g data-stage="2"><line class="leader" x1="-62" y1="-3" x2="-33.9" y2="-3"/><text class="draw-lbl draw-lbl--gold" x="-66" y="0" text-anchor="end">02 CONVERSATION</text></g><g data-stage="3"><line class="leader" x1="-62" y1="-28" x2="-18.4" y2="-28"/><text class="draw-lbl draw-lbl--gold" x="-66" y="-25" text-anchor="end">03 AUTOMATION</text><line class="edge-soft" x1="-31.18" y1="-18.00" x2="25.98" y2="15.00"/><text class="draw-lbl" x="110" y="78" text-anchor="end">HAIKA - SYSTEM ASSEMBLY</text><text class="draw-lbl draw-lbl--gold" x="110" y="90" text-anchor="end">AXONOMETRIC &#183; NOT TO SCALE</text></g></svg>
+      </div>
+
+      <ol class="sys__legend">
+        <li>
+          <span class="n">01 — Presence</span>
+          <h3>The layer people arrive on.</h3>
+          <p>A site or interface built to carry the weight of the business: considered, fast, and unmistakably its own.</p>
+          <ul class="ticks"><li>Website</li><li>Landing pages</li><li>Brand surface</li></ul>
+        </li>
+        <li>
+          <span class="n">02 — Conversation</span>
+          <h3>The layer that answers back.</h3>
+          <p>Chat and voice that respond in the business&rsquo;s own voice, guide the visitor and pick up the repetitive questions.</p>
+          <ul class="ticks"><li>Chatbot</li><li>Voice</li><li>Qualification</li></ul>
+        </li>
+        <li>
+          <span class="n">03 — Automation</span>
+          <h3>The layer that keeps moving.</h3>
+          <p>Databases, workflows and the tools already in use &mdash; wired together so information moves and actions fire on their own.</p>
+          <ul class="ticks"><li>Workflows</li><li>Records</li><li>Integrations</li></ul>
+        </li>
+      </ol>
+
+      <p class="sys__flow">
+        <span data-on>Presence</span><i aria-hidden="true">&rarr;</i>
+        <span data-on>Conversation</span><i aria-hidden="true">&rarr;</i>
+        <span data-on>Automation</span>
+      </p>
+    </section>
+
+    <section class="philosophy">
+      <p>Most businesses don&rsquo;t need more software.</p>
+      <p>They need fewer disconnected things.</p>
+      <p>Haika exists somewhere between design, automation and the systems that make a business move.</p>
+    </section>
+
+    <!-- ==================== THE BRAINS BEHIND IT ==================== -->
+    <section class="brains" id="about" data-reveal aria-labelledby="brainsTitle">
+      <div class="brains__wash" aria-hidden="true"></div>
+      <div class="brains__grain" aria-hidden="true"></div>
+
+      <div class="brains__inner">
+
+        <div class="brains__label"><i aria-hidden="true">&#10035;</i>THE BRAINS BEHIND IT</div>
+
+        <h2 class="brains__title" id="brainsTitle">
+          <span class="tl"><span class="ti">The people behind</span></span>
+          <span class="tl"><span class="ti">the system.</span></span>
+        </h2>
+
+        <p class="brains__lede">Haika is two people. One shapes how it looks and feels, the other shapes how it works &mdash; decided in the same room, built without a hand-off in between.</p>
+
+        <div class="brains__stage">
+
+          <div class="brains__wordwrap" aria-hidden="true">
+            <div class="brains__word">HAIKA</div>
+          </div>
+
+          <figure class="portrait portrait--venkat">
+            <div class="portrait__frame">
+              <img class="portrait__img" src="assets/haika-venkat.webp"
+                   srcset="assets/haika-venkat.webp 520w, assets/haika-venkat@2x.webp 1040w"
+                   sizes="(max-width:380px) 78vw, (max-width:640px) 73vw, (max-width:900px) 40vw, 352px"
+                   width="520" height="693"
+                   alt="Venkat, co-founder and CEO of Haika"
+                   loading="lazy" decoding="async">
+              <span class="portrait__sheen" aria-hidden="true"></span>
+              <span class="portrait__idx" aria-hidden="true">01</span>
+              <span class="portrait__dot" aria-hidden="true"></span>
+            </div>
+            <figcaption class="portrait__cap">
+              <span class="portrait__name">Venkat</span>
+              <span class="portrait__role">Co-founder &middot; CEO</span>
+            </figcaption>
+          </figure>
+
+          <div class="brains__seam" aria-hidden="true"><i></i></div>
+
+          <figure class="portrait portrait--vijay">
+            <div class="portrait__frame">
+              <img class="portrait__img" src="assets/haika-vijay.webp"
+                   srcset="assets/haika-vijay.webp 520w, assets/haika-vijay@2x.webp 1040w"
+                   sizes="(max-width:380px) 72vw, (max-width:640px) 67vw, (max-width:900px) 35vw, 314px"
+                   width="520" height="694"
+                   alt="Vijay, co-founder and CTO of Haika"
+                   loading="lazy" decoding="async">
+              <span class="portrait__sheen" aria-hidden="true"></span>
+              <span class="portrait__idx" aria-hidden="true">02</span>
+              <span class="portrait__dot" aria-hidden="true"></span>
+            </div>
+            <figcaption class="portrait__cap">
+              <span class="portrait__name">Vijay</span>
+              <span class="portrait__role">Co-founder &middot; CTO</span>
+            </figcaption>
+          </figure>
+
+        </div>
+
+        <div class="brains__foot">
+          <span>Design &middot; Systems &middot; Automation</span>
+          <span>Haika &mdash; India</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== CLOSING ==================== -->
+    <section class="final" id="contact" aria-labelledby="finalTitle">
+      <span class="eyebrow">Start</span>
+      <h2 id="finalTitle">Let&rsquo;s build<br>what comes next.</h2>
+      <p>Tell us what your business needs to do better. We&rsquo;ll figure out what should exist behind it.</p>
+      <div class="final__actions">
+        <a class="btn btn--gold" href="start/">Start a brief<span class="arrow" aria-hidden="true">&rarr;</span></a>
+        <p class="final__alt js-only">Or write to us first &mdash; <a data-contact-link="text" href="#">email</a></p>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="sitefoot">
+  <div class="sitefoot__col">
+    <div>HAIKA &middot; DIGITAL SYSTEMS STUDIO<br>INDIA</div>
+    <div class="sitefoot__links">
+      <a href="#work">Work</a>
+      <a href="#systems">Systems</a>
+      <a href="#about">About</a>
+      <a href="start/">Start a brief</a>
+    </div>
+  </div>
+  <div class="sitefoot__col" style="text-align:right;align-items:flex-end;">
+    <a class="js-only" data-contact-link="text" href="#">Email</a>
+    <div>&copy; 2026 HAIKA</div>
+  </div>
+</footer>
+
+<noscript>
+  <style>
+    .brains .portrait,
+    .brains__lede,
+    .brains__foot,
+    .portrait__idx,
+    .portrait__dot,
+    .brains__wash,
+    .brains__wordwrap{opacity:1;transform:none;}
+    .brains__wordwrap{transform:translate(-50%,-50%);}
+    .portrait__frame{clip-path:none;transform:none;}
+    .portrait__img{transform:none;}
+    .brains__label::after{transform:scaleX(1);}
+    .chain li::after{transform:scaleY(1);}
+    .sys__drawing [data-stage]{opacity:1;transform:none;}
+    .sys__legend li{opacity:1;transform:none;}
+    .boot{display:none;}
+    .stage video{display:none;}
+  </style>
+</noscript>
+
+<script src="assets/js/home.js"></script>
+</body>
+</html>

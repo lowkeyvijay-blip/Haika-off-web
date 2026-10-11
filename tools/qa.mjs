@@ -194,21 +194,19 @@ async function main() {
 
   const founders = await evalJS(`(async () => {
     const i = document.querySelector('.portrait--venkat img');
-    if (!i) return { load: false };
-    i.scrollIntoView({block:'center'});
+    const v = document.querySelector('.portrait--vijay img');
+    if (!i || !v) return { load: false, vijayLoad: false };
+    v.scrollIntoView({block:'center'});
     await new Promise(r => setTimeout(r, 1200));
-    const vijay = document.querySelector('.portrait--vijay');
-    const cap = vijay && vijay.querySelector('.portrait__cap .portrait__name');
     return {
       load: i.complete && i.naturalWidth > 0,
-      vijayFigure: !!vijay,
-      vijayCaption: cap ? cap.textContent.trim() : '',
-      vijayNoImg: !!vijay && !vijay.querySelector('img')
+      vijayLoad: v.complete && v.naturalWidth > 0,
+      vijayAlt: v.getAttribute('alt') || ''
     };
   })()`, true);
   check('Venkat portrait wired and loads', !!founders && !!founders.load, JSON.stringify(founders));
-  check('Vijay figure and caption kept (photo removed)',
-    !!founders && founders.vijayFigure && founders.vijayCaption === 'Vijay' && founders.vijayNoImg,
+  check('Vijay portrait wired and loads',
+    !!founders && !!founders.vijayLoad && /Vijay/.test(founders.vijayAlt),
     JSON.stringify(founders));
 
   // ---------- scroll choreography ----------

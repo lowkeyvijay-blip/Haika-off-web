@@ -414,7 +414,12 @@
 
           <figure class="portrait portrait--vijay">
             <div class="portrait__frame">
-              <span class="portrait__mono" aria-hidden="true">VJ</span>
+              <img class="portrait__img" src="assets/haika-vijay.webp"
+                   srcset="assets/haika-vijay.webp 520w, assets/haika-vijay@2x.webp 1040w"
+                   sizes="(max-width:380px) 72vw, (max-width:640px) 67vw, (max-width:900px) 35vw, 314px"
+                   width="520" height="650"
+                   alt="Vijay, co-founder and CTO of Haika"
+                   loading="lazy" decoding="async">
               <span class="portrait__sheen" aria-hidden="true"></span>
               <span class="portrait__idx" aria-hidden="true">02</span>
               <span class="portrait__dot" aria-hidden="true"></span>
@@ -472,7 +477,6 @@
     .brains__foot,
     .portrait__idx,
     .portrait__dot,
-    .portrait__mono,
     .brains__wash,
     .brains__wordwrap{opacity:1;transform:none;}
     .brains__wordwrap{transform:translate(-50%,-50%);}

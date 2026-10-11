@@ -1,6 +1,7 @@
 /* =========================================================================
    Haika — home page behaviour
    boot → stage/video → scroll choreography → nav → reveals → work plates
+   → founders parallax
    ========================================================================= */
 (function (root) {
   "use strict";
@@ -385,6 +386,94 @@
       plate.addEventListener("pointerenter", function () { mount(plate); }, { passive: true });
       plate.addEventListener("focusin", function () { mount(plate); });
     });
+  })();
+
+  /* ======================================================================
+     8. FOUNDERS — cursor parallax (--px/--py) + scroll drift (--p)
+     The CSS in `.brains` already consumes these variables; this is the
+     driver. Both are inert when motion is reduced; the pointer half only
+     runs on fine pointers.
+     ====================================================================== */
+  (function founders() {
+    var section = doc.querySelector(".brains");
+    if (!section) return;
+
+    /* --p: 0 as the section enters from below → 1 as it leaves past the
+       top (0.5 when centred). Drives the seam shimmer and the portrait
+       drift. Geometry is measured once and the value derived from
+       scrollY, so a scroll frame does no layout reads; nothing is written
+       unless the value actually moves. */
+    if (!REDUCED) {
+      var secTop = 0, secH = 1, lastP = -1, driftQueued = false;
+
+      function measureBrains() {
+        var y = root.pageYOffset || doc.documentElement.scrollTop || 0;
+        var r = section.getBoundingClientRect();
+        secTop = r.top + y;
+        secH = Math.max(1, r.height);
+      }
+
+      function applyP() {
+        driftQueued = false;
+        var vh = root.innerHeight || doc.documentElement.clientHeight || 0;
+        if (!vh) return;
+        var y = root.pageYOffset || doc.documentElement.scrollTop || 0;
+        var p = clamp((vh - (secTop - y)) / (vh + secH), 0, 1);
+        if (Math.abs(p - lastP) < 0.001) return;
+        lastP = p;
+        section.style.setProperty("--p", p.toFixed(4));
+      }
+
+      function queueP() {
+        if (driftQueued) return;
+        driftQueued = true;
+        requestAnimationFrame(applyP);
+      }
+
+      measureBrains();
+      applyP();
+      root.addEventListener("scroll", queueP, { passive: true });
+      root.addEventListener("resize", function () { measureBrains(); queueP(); }, { passive: true });
+      if (doc.fonts && doc.fonts.ready && doc.fonts.ready.then) {
+        doc.fonts.ready.then(function () { measureBrains(); queueP(); }, function () {});
+      }
+      root.addEventListener("load", function () { measureBrains(); queueP(); });
+    }
+
+    /* --px/--py: normalised pointer position inside the section,
+       eased (0.07 follow, same feel as the /start model), reset to 0 on
+       leave, and the rAF loop parks itself once settled. */
+    if (!FINE || REDUCED) return;
+
+    var pxGoal = 0, pyGoal = 0, pxCur = 0, pyCur = 0, running = false;
+
+    function easeParallax() {
+      pxCur += (pxGoal - pxCur) * 0.07;
+      pyCur += (pyGoal - pyCur) * 0.07;
+      var settled = Math.abs(pxGoal - pxCur) < 0.0005 && Math.abs(pyGoal - pyCur) < 0.0005;
+      if (settled) { pxCur = pxGoal; pyCur = pyGoal; }
+      section.style.setProperty("--px", pxCur.toFixed(4));
+      section.style.setProperty("--py", pyCur.toFixed(4));
+      if (settled) { running = false; return; }
+      requestAnimationFrame(easeParallax);
+    }
+    function kick() {
+      if (running) return;
+      running = true;
+      requestAnimationFrame(easeParallax);
+    }
+
+    section.addEventListener("pointermove", function (e) {
+      var r = section.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      pxGoal = clamp(((e.clientX - r.left) / r.width) * 2 - 1, -1, 1);
+      pyGoal = clamp(((e.clientY - r.top) / r.height) * 2 - 1, -1, 1);
+      kick();
+    }, { passive: true });
+
+    section.addEventListener("pointerleave", function () {
+      pxGoal = 0; pyGoal = 0; kick();
+    }, { passive: true });
   })();
 
 })(window);

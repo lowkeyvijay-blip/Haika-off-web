@@ -192,14 +192,24 @@ async function main() {
   })()`);
   check('every hero/final CTA has a real href', /start\/?/.test(ctas) && !/href="#"/.test(ctas), ctas);
 
-  const vijay = await evalJS(`(async () => {
-    const i = document.querySelector('.portrait--vijay img');
-    if (!i) return false;
+  const founders = await evalJS(`(async () => {
+    const i = document.querySelector('.portrait--venkat img');
+    if (!i) return { load: false };
     i.scrollIntoView({block:'center'});
     await new Promise(r => setTimeout(r, 1200));
-    return i.complete && i.naturalWidth > 0;
+    const vijay = document.querySelector('.portrait--vijay');
+    const cap = vijay && vijay.querySelector('.portrait__cap .portrait__name');
+    return {
+      load: i.complete && i.naturalWidth > 0,
+      vijayFigure: !!vijay,
+      vijayCaption: cap ? cap.textContent.trim() : '',
+      vijayNoImg: !!vijay && !vijay.querySelector('img')
+    };
   })()`, true);
-  check('Vijay portrait wired and loads', !!vijay);
+  check('Venkat portrait wired and loads', !!founders && !!founders.load, JSON.stringify(founders));
+  check('Vijay figure and caption kept (photo removed)',
+    !!founders && founders.vijayFigure && founders.vijayCaption === 'Vijay' && founders.vijayNoImg,
+    JSON.stringify(founders));
 
   // ---------- scroll choreography ----------
   const trackInfo = await evalJS(`(() => {

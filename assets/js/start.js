@@ -198,16 +198,16 @@
       var rig = new THREE.Group();
       scene.add(rig);
 
-      scene.add(new THREE.HemisphereLight(0xf1efe9, 0x1a1917, 1.05));
+      scene.add(new THREE.HemisphereLight(0xF0EDE6, 0x1A1A1C, 1.05));
       var key = new THREE.DirectionalLight(0xfff3dd, 1.5); key.position.set(-48, 86, 54); scene.add(key);
-      var fill = new THREE.DirectionalLight(0xa48a5a, 0.55); fill.position.set(66, 28, -40); scene.add(fill);
+      var fill = new THREE.DirectionalLight(0xD0B783, 0.55); fill.position.set(66, 28, -40); scene.add(fill);
       scene.add((function () { var r = new THREE.DirectionalLight(0xffffff, 0.4); r.position.set(10, -30, -70); return r; })());
 
       var PALETTE = {
         light: [0xe9e6de, 0xb9b4a7, 0x9d978a],
         dark: [0x35332e, 0x242320, 0x1b1a18],
-        gold: [0xa48a5a, 0x8a734a, 0x6d5c3c],
-        datum: [0xa48a5a, 0xa48a5a, 0xa48a5a]
+        gold: [0xD0B783, 0xB0945E, 0x8C7547],
+        datum: [0xD0B783, 0xD0B783, 0xD0B783]
       };
       var mats = {};
       Object.keys(PALETTE).forEach(function (t) {
@@ -220,10 +220,10 @@
         };
         var rough = t === 'gold' ? 0.45 : 0.86;
         var metal = t === 'gold' ? 0.25 : 0.02;
-        mats[t] = [mk(p[1], rough, metal), mk(p[2], rough, metal), mk(p[0], rough, metal), mk(0x111110, rough, metal), mk(p[1], rough, metal), mk(p[2], rough, metal)];
+        mats[t] = [mk(p[1], rough, metal), mk(p[2], rough, metal), mk(p[0], rough, metal), mk(0x101113, rough, metal), mk(p[1], rough, metal), mk(p[2], rough, metal)];
       });
-      var edgeDark = new THREE.LineBasicMaterial({ color: 0x0b0b0a, transparent: true, opacity: 0 });
-      var edgeGold = new THREE.LineBasicMaterial({ color: 0xa48a5a, transparent: true, opacity: 0 });
+      var edgeDark = new THREE.LineBasicMaterial({ color: 0x090A0B, transparent: true, opacity: 0 });
+      var edgeGold = new THREE.LineBasicMaterial({ color: 0xD0B783, transparent: true, opacity: 0 });
 
       var meshes = [];
 

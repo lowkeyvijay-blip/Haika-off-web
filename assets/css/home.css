@@ -561,8 +561,34 @@
 /* =========================================================================
    PHILOSOPHY
    ========================================================================= */
-.philosophy{text-align:center;padding:180px 32px;}
+.philosophy{text-align:center;padding:180px 32px;position:relative;overflow:hidden;}
+
+/* a cropped champagne ring — the donut silhouette recurring as a quiet motif */
+.donut-motif{
+  position:absolute;
+  pointer-events:none;
+  color:var(--gold);
+  opacity:.10;
+  z-index:0;
+}
+.donut-motif svg{width:100%;height:100%;display:block;}
+.donut-motif--philo{
+  right:-140px;
+  top:50%;
+  transform:translateY(-50%);
+  width:min(560px,70vw);
+  aspect-ratio:1;
+}
+.donut-motif--final{
+  left:50%;
+  bottom:-220px;
+  transform:translateX(-50%);
+  width:min(680px,90vw);
+  aspect-ratio:1;
+  opacity:.07;
+}
 .philosophy p{
+  position:relative;z-index:1;
   font-size:clamp(22px,3.4vw,38px);
   line-height:1.4;
   font-weight:500;
@@ -767,7 +793,10 @@
   padding:180px 32px 160px;
   background:var(--charcoal);
   color:var(--ivory);
+  position:relative;
+  overflow:hidden;
 }
+.final .eyebrow,.final h2,.final p,.final__actions{position:relative;z-index:1;}
 .final .eyebrow{color:var(--gold);margin-bottom:22px;display:block;}
 .final h2{
   font-size:clamp(36px,6vw,64px);

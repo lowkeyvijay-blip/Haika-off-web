@@ -15,8 +15,10 @@
 
   var doc = document;
   var CFG = (window.HAIKA && window.HAIKA.config) || {};
-  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var Q = (window.HAIKA && window.HAIKA.quality) || {};
+  var reduced = Q.reduced != null ? !!Q.reduced : matchMedia('(prefers-reduced-motion: reduce)').matches;
   var fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+  var glOK = Q.gl !== false;
   var modelEl = doc.getElementById('model');
 
   /* ---------------------------------------------------------------- helpers */
@@ -161,15 +163,18 @@
   }
 
   var svgHost = doc.querySelector('[data-model-svg]');
-  if (svgHost) svgHost.innerHTML = buildSVG();
+  var svgNodes = [];
+  if (svgHost) {
+    svgHost.innerHTML = buildSVG();
+    svgNodes = svgHost.querySelectorAll('[data-part]');
+  }
 
   function paintSVG() {
     var keys = {};
-    var nodes = modelEl ? modelEl.querySelectorAll('[data-part]') : [];
-    for (var i = 0; i < nodes.length; i++) {
-      var key = nodes[i].getAttribute('data-part');
+    for (var i = 0; i < svgNodes.length; i++) {
+      var key = svgNodes[i].getAttribute('data-part');
       var on = partOn(key);
-      nodes[i].classList.toggle('is-on', on);
+      svgNodes[i].classList.toggle('is-on', on);
       if (on) keys[key] = 1;
     }
     return Object.keys(keys).length;
@@ -181,27 +186,34 @@
   var gl3d = null;
 
   function initGL() {
-    if (reduced || !fine || !modelEl) return Promise.resolve();
+    if (reduced || !glOK || !modelEl) return Promise.resolve();
     var canvas = doc.querySelector('[data-model-gl]');
     if (!canvas) return Promise.resolve();
     if (!canvas.getContext('webgl2') && !canvas.getContext('webgl')) return Promise.resolve();
 
     return import('three').then(function (THREE) {
+      var high = Q.tier === 'high';
       var renderer;
       try {
-        renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+        renderer = new THREE.WebGLRenderer({
+          canvas: canvas,
+          antialias: high && fine,
+          alpha: true,
+          powerPreference: high ? 'high-performance' : 'low-power'
+        });
       } catch (e) { return; }
       renderer.setClearColor(0x000000, 0);
 
       var scene = new THREE.Scene();
-      var camera = new THREE.PerspectiveCamera(30, 1, 1, 1600);
+      var camera = new THREE.PerspectiveCamera(30, 1, 1, 1000);
       var rig = new THREE.Group();
       scene.add(rig);
 
-      scene.add(new THREE.HemisphereLight(0xF0EDE6, 0x1A1A1C, 1.05));
-      var key = new THREE.DirectionalLight(0xfff3dd, 1.5); key.position.set(-48, 86, 54); scene.add(key);
-      var fill = new THREE.DirectionalLight(0xD0B783, 0.55); fill.position.set(66, 28, -40); scene.add(fill);
-      scene.add((function () { var r = new THREE.DirectionalLight(0xffffff, 0.4); r.position.set(10, -30, -70); return r; })());
+      scene.add(new THREE.HemisphereLight(0xF0EDE6, 0x1A1A1C, high ? 0.95 : 0.9));
+      var key = new THREE.DirectionalLight(0xfff3dd, high ? 1.35 : 1.1); key.position.set(-48, 86, 54); scene.add(key);
+      if (high) {
+        var fill = new THREE.DirectionalLight(0xD0B783, 0.5); fill.position.set(66, 28, -40); scene.add(fill);
+      }
 
       var PALETTE = {
         light: [0xe9e6de, 0xb9b4a7, 0x9d978a],
@@ -209,21 +221,41 @@
         gold: [0xD0B783, 0xB0945E, 0x8C7547],
         datum: [0xD0B783, 0xD0B783, 0xD0B783]
       };
+      var FACES = [1, 2, 0, 3, 1, 2];
       var mats = {};
       Object.keys(PALETTE).forEach(function (t) {
-        var p = PALETTE[t];
-        var mk = function (c, rough, metal) {
-          return new THREE.MeshStandardMaterial({
-            color: c, roughness: rough, metalness: metal,
-            transparent: true, opacity: 0, depthWrite: true
-          });
+        var common = {
+          vertexColors: true, transparent: true, opacity: 0, depthWrite: true
         };
-        var rough = t === 'gold' ? 0.45 : 0.86;
-        var metal = t === 'gold' ? 0.25 : 0.02;
-        mats[t] = [mk(p[1], rough, metal), mk(p[2], rough, metal), mk(p[0], rough, metal), mk(0x101113, rough, metal), mk(p[1], rough, metal), mk(p[2], rough, metal)];
+        if (t === 'gold') {
+          common.shininess = 52;
+          common.specular = 0x6b5a35;
+          mats[t] = new THREE.MeshPhongMaterial(common);
+        } else {
+          mats[t] = new THREE.MeshLambertMaterial(common);
+        }
       });
       var edgeDark = new THREE.LineBasicMaterial({ color: 0x090A0B, transparent: true, opacity: 0 });
       var edgeGold = new THREE.LineBasicMaterial({ color: 0xD0B783, transparent: true, opacity: 0 });
+
+      function colorGeometry(geo, tone) {
+        var p = PALETTE[tone];
+        var face = [p[FACES[0]], p[FACES[1]], p[FACES[2]], 0x101113, p[FACES[4]], p[FACES[5]]];
+        var count = geo.attributes.position.count;
+        var colors = new Float32Array(count * 3);
+        var c = new THREE.Color();
+        for (var f = 0; f < 6; f++) {
+          c.setHex(face[f]);
+          for (var v = 0; v < 4; v++) {
+            var o = (f * 4 + v) * 3;
+            colors[o] = c.r;
+            colors[o + 1] = c.g;
+            colors[o + 2] = c.b;
+          }
+        }
+        geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        return geo;
+      }
 
       var meshes = [];
 
@@ -231,14 +263,14 @@
         var m, geo;
         if (p.link) {
           var len = Math.abs(p.link[3] - p.link[0]);
-          geo = new THREE.BoxGeometry(len, 0.5, 0.5);
-          m = new THREE.Mesh(geo, mats.gold[1].clone());
+          geo = colorGeometry(new THREE.BoxGeometry(len, 0.5, 0.5), 'gold');
+          m = new THREE.Mesh(geo, mats.gold.clone());
           m.position.set((p.link[0] + p.link[3]) / 2, (p.link[2] + p.link[5]) / 2, (p.link[1] + p.link[4]) / 2);
           m.userData = { key: p.key, tone: 'gold', on: false, cur: 0, base: m.position.clone(), drop: 0, link: true, edge: null };
         } else {
           var b = p.box;
-          geo = new THREE.BoxGeometry(b[1] - b[0], b[5] - b[4], b[3] - b[2]);
-          m = new THREE.Mesh(geo, mats[p.tone].map(function (x) { return x.clone(); }));
+          geo = colorGeometry(new THREE.BoxGeometry(b[1] - b[0], b[5] - b[4], b[3] - b[2]), p.tone);
+          m = new THREE.Mesh(geo, mats[p.tone].clone());
           m.position.set((b[0] + b[1]) / 2, (b[4] + b[5]) / 2, (b[2] + b[3]) / 2);
           var edge = new THREE.LineSegments(
             new THREE.EdgesGeometry(geo),
@@ -260,7 +292,7 @@
       var camP = new THREE.Vector3(), camT = new THREE.Vector3();
       var goalP = new THREE.Vector3(), goalT = new THREE.Vector3();
       var curStep = 1;
-      var rot = 0, spin = 0, ptr = 0, ptrGoal = 0, idle = 0, alive = true, pending = true;
+      var rot = 0, spin = 0, ptr = 0, ptrGoal = 0, alive = true, onScreen = true, rafId = 0;
 
       // The model is ~79 x 54 x 48 units (bounding sphere ~54 + 11 units of
       // entry-drop margin). Each CAM entry keeps its own framing weight, but
@@ -286,13 +318,59 @@
         var d = fitDistance() * (0.86 + t * 0.10);
         goalT.set(tx, ty, tz);
         goalP.set(tx + dx / len * d, ty + dy / len * d, tz + dz / len * d);
-        pending = true;
+        schedule();
+      }
+
+      function schedule() {
+        if (rafId || !alive || !onScreen || doc.hidden) return;
+        rafId = requestAnimationFrame(frame);
+      }
+
+      function frame() {
+        rafId = 0;
+        if (!alive || !onScreen || doc.hidden) return;
+        var moving = false;
+
+        camP.lerp(goalP, 0.06);
+        camT.lerp(goalT, 0.06);
+        if (camP.distanceTo(goalP) > 0.05 || camT.distanceTo(goalT) > 0.05) moving = true;
+        else { camP.copy(goalP); camT.copy(goalT); }
+
+        ptr += (ptrGoal - ptr) * 0.07;
+        if (Math.abs(ptrGoal - ptr) > 0.0006) moving = true;
+        else ptr = ptrGoal;
+
+        if (spin) { rot += 0.0034; moving = true; }
+        else if (Math.abs(rot) > 0.0005) { rot *= 0.94; moving = true; }
+        else rot = 0;
+
+        meshes.forEach(function (m) {
+          var u = m.userData;
+          var goal = u.on ? 1 : 0;
+          var d = goal - u.cur;
+          if (Math.abs(d) > 0.004) { u.cur += d * 0.13; moving = true; }
+          else u.cur = goal;
+
+          var op = u.tone === 'datum' ? u.cur * 0.6 : u.cur;
+          if (u.tone === 'dark') op = u.cur * 0.98;
+          m.material.opacity = op;
+          if (u.edge) u.edge.material.opacity = u.cur * 0.55;
+          if (!u.link) m.position.y = u.base.y + (1 - u.cur) * u.drop;
+          m.visible = u.cur > 0.01;
+        });
+
+        rig.rotation.y = ptr + rot;
+        camera.position.copy(camP);
+        camera.lookAt(camT);
+        renderer.render(scene, camera);
+
+        if (moving) schedule();
       }
 
       function resize() {
         var r = modelEl.getBoundingClientRect();
         var w = Math.max(1, Math.round(r.width)), h = Math.max(1, Math.round(r.height));
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, high ? 1.75 : 1.25));
         renderer.setSize(w, h, false);
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
@@ -308,72 +386,71 @@
         modelEl.addEventListener('pointermove', function (e) {
           var r = modelEl.getBoundingClientRect();
           ptrGoal = ((e.clientX - r.left) / r.width * 2 - 1) * 0.2;
-          pending = true;
+          schedule();
         }, { passive: true });
-        modelEl.addEventListener('pointerleave', function () { ptrGoal = 0; pending = true; }, { passive: true });
+        modelEl.addEventListener('pointerleave', function () { ptrGoal = 0; schedule(); }, { passive: true });
       }
+
+      var io = null;
+      if ('IntersectionObserver' in window) {
+        io = new IntersectionObserver(function (entries) {
+          onScreen = entries[0].isIntersecting;
+          if (onScreen) schedule();
+          else if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+        }, { rootMargin: '160px' });
+        io.observe(modelEl);
+      }
+
+      function onVis() {
+        if (doc.hidden) {
+          if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+        } else schedule();
+      }
+      doc.addEventListener('visibilitychange', onVis);
 
       gl3d = {
         sync: function (step, shouldSpin) {
-          var seen = {};
           meshes.forEach(function (m) {
             var u = m.userData;
             var on = partOn(u.key);
             if (on && !u.on) u.cur = 0;
             u.on = on;
-            seen[u.key] = 1;
           });
           applyCam(step);
           spin = shouldSpin ? 1 : 0;
-          pending = true;
+          schedule();
         },
-        stop: function () { alive = false; ro.disconnect(); try { renderer.dispose(); } catch (e) {} }
+        stop: function () {
+          if (!alive) return;
+          alive = false;
+          ro.disconnect();
+          if (io) io.disconnect();
+          doc.removeEventListener('visibilitychange', onVis);
+          canvas.removeEventListener('webglcontextlost', onLost);
+          if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+          scene.traverse(function (o) {
+            if (o.geometry) { try { o.geometry.dispose(); } catch (e) {} }
+            if (o.material) {
+              if (Array.isArray(o.material)) {
+                o.material.forEach(function (mm) { try { mm.dispose(); } catch (e) {} });
+              } else { try { o.material.dispose(); } catch (e) {} }
+            }
+          });
+          try { renderer.dispose(); } catch (e) {}
+          try { renderer.forceContextLoss(); } catch (e) {}
+          modelEl.classList.remove('is-gl');
+        }
       };
 
-      function frame() {
-        if (!alive) return;
-        var moving = false;
-
-        camP.lerp(goalP, 0.055);
-        camT.lerp(goalT, 0.055);
-        if (camP.distanceTo(goalP) > 0.05) moving = true;
-
-        ptr += (ptrGoal - ptr) * 0.07;
-        if (Math.abs(ptrGoal - ptr) > 0.0006) moving = true;
-
-        if (spin) { rot += 0.0034; moving = true; }
-        else if (Math.abs(rot) > 0.0005) { rot *= 0.94; moving = true; } else rot = 0;
-
-        meshes.forEach(function (m) {
-          var u = m.userData;
-          var goal = u.on ? 1 : 0;
-          var d = goal - u.cur;
-          if (Math.abs(d) > 0.004) { u.cur += d * 0.13; moving = true; }
-          else u.cur = goal;
-
-          var op = u.tone === 'datum' ? u.cur * 0.6 : u.cur;
-          if (u.tone === 'dark') op = u.cur * 0.98;
-          if (Array.isArray(m.material)) m.material.forEach(function (x) { x.opacity = op; });
-          else m.material.opacity = op;
-          if (u.edge) u.edge.material.opacity = u.cur * 0.55;
-          if (!u.link) m.position.y = u.base.y + (1 - u.cur) * u.drop;
-          m.visible = u.cur > 0.01;
-        });
-
-        if (moving) pending = false;
-        rig.rotation.y = ptr + rot;
-        camera.position.copy(camP);
-        camera.lookAt(camT);
-        renderer.render(scene, camera);
-
-        if (pending && !moving) pending = false;
-        if (moving || pending) requestAnimationFrame(frame);
-        else setTimeout(function () { if (alive) requestAnimationFrame(frame); }, 140);
+      function onLost(e) {
+        e.preventDefault();
+        if (gl3d) gl3d.stop();
       }
+      canvas.addEventListener('webglcontextlost', onLost, false);
 
       modelEl.classList.add('is-gl');
       gl3d.sync(state.step, false);
-      requestAnimationFrame(frame);
+      schedule();
     }).catch(function () { /* stay on the SVG renderer */ });
   }
 
@@ -385,7 +462,26 @@
     4: '04 · Load', 5: '05 · Existing connections', 6: '06 · Vision datum', 7: '07 · Review'
   };
 
-  function paintModel() {
+  var lastSig = "";
+
+  function modelSig() {
+    var v = state.values;
+    var parts = [], current = [];
+    for (var i = 0; i < v.parts.length; i++) parts.push(v.parts[i].model);
+    for (var j = 0; j < v.current.length; j++) current.push(v.current[j].model);
+    return [
+      state.step, state.max,
+      v.company.trim() ? 1 : 0,
+      parts.sort().join(","),
+      current.sort().join(","),
+      v.bottleneck.length
+    ].join("|");
+  }
+
+  function paintModel(force) {
+    var sig = modelSig();
+    if (!force && sig === lastSig) return;
+    lastSig = sig;
     var count = paintSVG();
     var label = doc.querySelector('[data-model-label]');
     var cnt = doc.querySelector('[data-model-count]');
@@ -472,7 +568,7 @@
       ? 'Send brief <span class="arrow" aria-hidden="true">&rarr;</span>'
       : 'Continue <span class="arrow" aria-hidden="true">&rarr;</span>';
     if (readout) readout.textContent = 'Step 0' + n + ' / 07';
-    if (bar) bar.style.width = Math.round((n / 7) * 100) + '%';
+    if (bar) bar.style.transform = 'scaleX(' + (n / 7).toFixed(4) + ')';
     if (statusEl) statusEl.textContent = '';
     if (n === 7) renderReview();
     paintModel();

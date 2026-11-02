@@ -50,8 +50,16 @@
     /* The hero clip. Posters are local; the clip itself is remote. */
     hero: {
       video: "https://d2ol7oe51mr4n9.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/45567745-d826-44a2-a5ce-7ef670944e60.mp4",
-      poster: "assets/hero-poster.jpg"
+      poster: "assets/hero-poster-obsidian.jpg"
     }
+  };
+
+  /* Set inline in <head> before the stylesheets so the first paint already
+     knows which experience to build. The fallback only runs if that script
+     was blocked. */
+  HAIKA.quality = root.__HAIKA_Q__ || {
+    tier: "high", reduced: false, mobile: false, cores: 8, memory: 8, dpr: 1,
+    saveData: false, video: true, parallax: true, glass: true, iframes: true, gl: true
   };
 
   root.HAIKA = HAIKA;

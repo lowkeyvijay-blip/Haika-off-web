@@ -11,10 +11,39 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://d2ol7oe51mr4n9.cloudfront.net" crossorigin>
+<script>
+(function(){
+  var d=document.documentElement,
+      c=navigator.connection||{},
+      cores=navigator.hardwareConcurrency||4,
+      mem=navigator.deviceMemory||4,
+      narrow=matchMedia("(max-width:860px)").matches,
+      mobile=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)||narrow,
+      dpr=window.devicePixelRatio||1,
+      reduced=matchMedia("(prefers-reduced-motion: reduce)").matches,
+      save=!!c.saveData||/(^|-)2g$/.test(c.effectiveType||""),
+      tier;
+  if(reduced||save||cores<=2||mem<=2)tier="low";
+  else if(mobile||cores<=4||dpr>=2.5)tier="mid";
+  else tier="high";
+  var forced=(location.search.match(/[?&]quality=(low|mid|high)/)||[])[1];
+  if(forced)tier=forced;
+  d.className="js";
+  d.setAttribute("data-quality",tier);
+  window.__HAIKA_Q__={
+    tier:tier,reduced:reduced,mobile:mobile,cores:cores,memory:mem,dpr:dpr,saveData:save,
+    video:tier==="high",
+    parallax:!reduced&&tier!=="low",
+    glass:tier==="high",
+    iframes:!save&&tier!=="low",
+    gl:tier==="high"||(tier==="mid"&&!mobile&&!save)
+  };
+})();
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="assets/hero-poster-obsidian.jpg" fetchpriority="high">
 <link rel="stylesheet" href="assets/css/base.css">
 <link rel="stylesheet" href="assets/css/home.css">
-<script>document.documentElement.className="js";</script>
 <script src="assets/js/config.js"></script>
 </head>
 <body>
@@ -27,8 +56,8 @@
   <div class="bar"><i id="bootBar"></i></div>
 </div>
 
-<div class="stage" id="stage" style="background-image:url(data:image/jpeg;base64,/9j//gAQTGF2YzYyLjI4LjEwMgD/2wBDAAg8PEc8R1JSUlJSUmFaYWVlZWFhYWFlZWVsbGx/f39sbGxlZWxseHh/f4qOioODf4OOjpaWlrS0rKzS0tn/////xABaAAADAQEBAQAAAAAAAAAAAAAFAgABBAMHAQEBAQAAAAAAAAAAAAAAAAABAAIQAQACAwEBAQAAAAAAAAAAAAASARExAgMyYREBAAAAAAAAAAAAAAAAAAAAAP/AABEIABcAKAMBIgACEQADEQD/2gAMAwEAAhEDEQA/APqcVgYDu9AhGaddVmnjrl2efyCSJYjjCycpmlA0P0XMgkkwp//Z);background-size:cover;background-position:50% 50%;">
-  <img class="stage__poster" id="heroPoster" src="assets/hero-poster.jpg" width="1600" height="900"
+<div class="stage" id="stage" style="background-image:url(data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAA4KCw0LCQ4NDA0QDw4RFiQXFhQUFiwgIRokNC43NjMuMjI6QVNGOj1OPjIySGJJTlZYXV5dOEVmbWVabFNbXVn/2wBDAQ8QEBYTFioXFypZOzI7WVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVlZWVn/wAARCAASACADASIAAhEBAxEB/8QAGAABAQEBAQAAAAAAAAAAAAAAAAYFAQT/xAAmEAAABQMEAQUBAAAAAAAAAAAAAQIDBAUREgYhUWExEzJBQpFS/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAH/xAAWEQEBAQAAAAAAAAAAAAAAAAAAARH/2gAMAwEAAhEDEQA/AJ9Vfd/o/wBGlTHZE+O9LelJiwmLZuq3+S2Lu17cmIvIVWnpKZlEkUdSmSS8rJSVrxVtY8k8n1v7d+DuLWhUXHItGjVJmUlxl1z0lFffK17l1Yj2Px2RjJTqB4vsf6PZqWoR4Wn4tDiSCecQZG+abGRW+pnze3jjsR2RiYRwAAUAAAH/2Q==);background-size:cover;background-position:50% 50%;">
+  <img class="stage__poster" id="heroPoster" src="assets/hero-poster-obsidian.jpg" width="1600" height="900"
        alt="" aria-hidden="true" fetchpriority="high" decoding="async">
   <!--
     Video: 1920x1080, 10.04s, 241 all-intra/keyframe friendly frames, which
@@ -110,6 +139,16 @@
       <a class="cta" href="start/">Start a brief</a>
     </section>
   </div>
+
+  <aside class="chapters" id="chapters" aria-hidden="true">
+    <ol>
+      <li data-chapter="0"><span class="idx">01</span><i></i><span class="name">Intro</span></li>
+      <li data-chapter="1"><span class="idx">02</span><i></i><span class="name">Presence</span></li>
+      <li data-chapter="2"><span class="idx">03</span><i></i><span class="name">Conversation</span></li>
+      <li data-chapter="3"><span class="idx">04</span><i></i><span class="name">Automation</span></li>
+      <li data-chapter="4"><span class="idx">05</span><i></i><span class="name">Build</span></li>
+    </ol>
+  </aside>
 
   <div class="track" id="track" aria-hidden="true"></div>
 

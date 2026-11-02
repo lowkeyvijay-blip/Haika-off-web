@@ -109,10 +109,11 @@ async function main() {
 
   const base = `http://127.0.0.1:${PORT}`;
   const tag = process.env.TAG || 'before';
+  const query = process.env.QUALITY ? `?quality=${process.env.QUALITY}` : '';
 
   /* desktop hero fold */
   await viewport(1440, 900);
-  await go(`${base}/index.html`, 6000);
+  await go(`${base}/index.html${query}`, 6000);
   const state = await evalJS(`JSON.stringify({state: document.getElementById('stage').getAttribute('data-state'), live: document.getElementById('stage').classList.contains('is-live')})`);
   console.log('hero state: ' + state);
   await shot(`${tag}-hero-desktop.png`);

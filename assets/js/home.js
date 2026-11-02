@@ -8,10 +8,19 @@
 
   var doc = document;
   var CFG = (root.HAIKA && root.HAIKA.config) || {};
+  var Q = (root.HAIKA && root.HAIKA.quality) || {};
 
   var mq = root.matchMedia || function () { return { matches: false, addListener: function () {} }; };
-  var REDUCED = mq("(prefers-reduced-motion: reduce)").matches;
+  var REDUCED = Q.reduced != null ? !!Q.reduced : mq("(prefers-reduced-motion: reduce)").matches;
   var FINE = mq("(hover: hover) and (pointer: fine)").matches;
+  var TIER = Q.tier || "high";
+  var LOW = TIER === "low";
+  var HIGH = TIER === "high";
+  var START_VIDEO = Q.video !== false && !REDUCED;
+  var PARALLAX = Q.parallax !== false && !REDUCED;
+  var IFRAMES = Q.iframes !== false;
+  var POSTER_MOTION = !REDUCED && TIER === "mid";
+  var PAINT_EPS = LOW ? 0.00035 : 0.0002;
 
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
   function smooth(t) { return t * t * (3 - 2 * t); }
@@ -42,17 +51,17 @@
   var poster = doc.getElementById("heroPoster");
   var duration = 0;
   var videoReady = false;
+  var startClip = function () {};
 
   (function stageSetup() {
     if (!stage) return;
 
-    // Reduced motion: the poster *is* the hero. No clip request at all.
-    if (REDUCED) {
+    if (!START_VIDEO || !clip) {
       stage.setAttribute("data-state", "poster");
       if (clip) clip.remove();
+      clip = null;
       return;
     }
-    if (!clip) { stage.setAttribute("data-state", "fallback"); return; }
 
     clip.setAttribute("aria-hidden", "true");
     clip.setAttribute("tabindex", "-1");
@@ -62,9 +71,11 @@
       videoReady = true;
       stage.classList.add("is-live");
       stage.setAttribute("data-state", "video");
+      readScroll();
     }
     function fail() {
-      if (videoReady) return;
+      videoReady = false;
+      stage.classList.remove("is-live");
       stage.setAttribute("data-state", "fallback");
     }
 
@@ -72,15 +83,15 @@
       duration = clip.duration || 0;
       try { clip.pause(); } catch (e) {}
       readScroll();
-      seekAt = seekTo;
-      if (clip.readyState >= 1) { try { clip.currentTime = seekAt; } catch (e) {} }
+      if (duration) {
+        seekPos = seekTarget = progress * duration;
+        if (clip.readyState >= 1) { try { clip.currentTime = seekPos; } catch (e) {} }
+      }
     });
     clip.addEventListener("canplay", live);
     clip.addEventListener("loadeddata", live);
     clip.addEventListener("error", fail);
     clip.addEventListener("stalled", function () {
-      // never leave a spinner state behind: fall back, and if the clip
-      // arrives later `canplay` will still upgrade it
       setTimeout(function () { if (!videoReady) fail(); }, 4000);
     });
   })();
@@ -95,7 +106,7 @@
     var bar = doc.getElementById("bootBar");
     var done = false;
     var t0 = Date.now();
-    var MAX = 2600;
+    var MAX = 1250;
     var value = 0;
 
     function set(p) {
@@ -110,27 +121,29 @@
       set(100);
       el.classList.add("done");
       doc.documentElement.setAttribute("data-booted", "1");
-      startClip();
+      if (root.requestIdleCallback) root.requestIdleCallback(startClip, { timeout: 900 });
+      else setTimeout(startClip, 600);
     }
 
-    function startClip() {
-      if (!clip || REDUCED || clip.getAttribute("src")) return;
+    startClip = function () {
+      if (!clip || !START_VIDEO || clip.getAttribute("src")) return;
+      if (track && scrollPos() > trackEnd) return;
       var url = CFG.hero && CFG.hero.video;
       if (!url) return;
-      // the clip is an enhancement: it starts only once the page is usable
+      clip.preload = HIGH ? "auto" : "metadata";
       clip.src = url;
       try { clip.load(); } catch (e) {}
-    }
+    };
 
     var ticker = setInterval(function () {
       var elapsed = Date.now() - t0;
-      set(Math.min(92, (elapsed / MAX) * 100));
+      set(Math.min(90, (elapsed / MAX) * 100));
       if (elapsed >= MAX) { clearInterval(ticker); finish(); }
-    }, 90);
+    }, 200);
 
     function whenPoster() {
       var elapsed = Date.now() - t0;
-      var wait = Math.max(0, (REDUCED ? 220 : 420) - elapsed);
+      var wait = Math.max(0, (REDUCED ? 100 : 260) - elapsed);
       setTimeout(function () { clearInterval(ticker); finish(); }, wait);
     }
 
@@ -144,8 +157,7 @@
       }, { once: true });
     } else whenPoster();
 
-    // absolute backstop — the visitor is never held hostage by the network
-    setTimeout(function () { clearInterval(ticker); finish(); }, MAX + 900);
+    setTimeout(function () { clearInterval(ticker); finish(); }, MAX + 600);
   })();
 
   /* ======================================================================
@@ -156,92 +168,280 @@
      ====================================================================== */
   var track = doc.getElementById("track");
   var panelsWrap = doc.getElementById("panels");
+  var navEl = doc.getElementById("nav");
   var panelEls = Array.prototype.slice.call(doc.querySelectorAll("[data-panel]"));
+  var brainsEl = doc.querySelector(".brains");
+  var chaptersEl = doc.getElementById("chapters");
+  var chapterEls = chaptersEl
+    ? Array.prototype.slice.call(chaptersEl.querySelectorAll("[data-chapter]"))
+    : [];
+  var chapterAt = [0, 0.225, 0.44, 0.70, 0.925];
+  var chapterOn = -1;
 
   var CUES = [
-    [-0.02, 0.00, 0.16, 0.19],   // 00 intro
-    [ 0.19, 0.26, 0.38, 0.41],   // 01 presence
-    [ 0.41, 0.48, 0.64, 0.67],   // 02 conversation
-    [ 0.67, 0.74, 0.86, 0.89],   // 03 automation
-    [ 0.89, 0.96, 1.20, 1.30]    // 04 closing — held, then covered by content
+    [-0.02, 0.00, 0.16, 0.19],
+    [ 0.19, 0.26, 0.38, 0.41],
+    [ 0.41, 0.48, 0.64, 0.67],
+    [ 0.67, 0.74, 0.86, 0.89],
+    [ 0.89, 0.96, 1.20, 1.30]
   ];
-  var DRIFT = 24;
+  var DRIFT = REDUCED || LOW ? 0 : 24;
 
   var progress = 0;
-  var seekTo = 0;
-  var seekAt = 0;
+  var painted = -1;
+  var seekTarget = 0;
+  var seekPos = 0;
+  var lastSeek = 0;
   var trackTop = 0;
   var trackSpan = 1;
+  var trackEnd = 0;
+  var navAt = 40;
   var parked = false;
+  var y = 0;
+  var frameId = 0;
+  var needsPaint = false;
+  var panelShown = [];
+  var panelHit = [];
+  var panelOp = [];
+  var navStuck = false;
+  var navScrolling = false;
+  var navScrollTimer = 0;
+  var brainsTop = 0;
+  var brainsHeight = 1;
+  var brainsLeft = 0;
+  var brainsWidth = 1;
+  var brainsLastP = -1;
 
-  function measure() {
-    if (!track) return;
-    var y = root.pageYOffset || doc.documentElement.scrollTop || 0;
-    trackTop = track.getBoundingClientRect().top + y;
-    trackSpan = Math.max(1, track.offsetHeight - root.innerHeight);
+  for (var pi = 0; pi < panelEls.length; pi++) {
+    panelShown[pi] = false;
+    panelHit[pi] = false;
+    panelEls[pi].style.pointerEvents = "none";
+    panelEls[pi].setAttribute("aria-hidden", "true");
   }
 
-  function readScroll() {
-    var y = root.pageYOffset || doc.documentElement.scrollTop || 0;
-    progress = clamp((y - trackTop) / trackSpan, 0, 1);
-    if (duration) seekTo = progress * duration;
+  function scrollPos() {
+    return root.pageYOffset || doc.documentElement.scrollTop || 0;
+  }
 
-    // once content has taken the whole viewport there is nothing left to
-    // paint or scrub — park the stage instead of burning frames behind it
-    var shouldPark = y >= trackTop + (track ? track.offsetHeight : 0);
+  function measure() {
+    y = scrollPos();
+    if (track) {
+      var tr = track.getBoundingClientRect();
+      trackTop = tr.top + y;
+      trackEnd = trackTop + tr.height;
+      trackSpan = Math.max(1, tr.height - (root.innerHeight || doc.documentElement.clientHeight || 1));
+      navAt = trackTop + 40;
+    } else {
+      trackEnd = 0;
+      trackSpan = 1;
+      navAt = 40;
+    }
+    if (brainsEl) {
+      var br = brainsEl.getBoundingClientRect();
+      brainsTop = br.top + y;
+      brainsHeight = Math.max(1, br.height);
+      brainsLeft = br.left;
+      brainsWidth = Math.max(1, br.width);
+    }
+    readScroll(y);
+  }
+
+  function updateNav(atY) {
+    if (!navEl) return;
+    var want = atY > navAt;
+    if (want !== navStuck) {
+      navStuck = want;
+      navEl.classList.toggle("is-stuck", want);
+    }
+  }
+
+  function updateChapters(p) {
+    if (!chaptersEl || !chapterEls.length) return;
+    var idx = 0;
+    for (var i = 0; i < chapterAt.length; i++) {
+      if (p >= chapterAt[i] - 0.02) idx = i;
+    }
+    if (idx === chapterOn) return;
+    chapterOn = idx;
+    for (var j = 0; j < chapterEls.length; j++) {
+      chapterEls[j].classList.toggle("is-active", j === idx);
+    }
+  }
+
+  function markScrolling() {
+    if (!HIGH || !navEl || !navStuck) return;
+    if (!navScrolling) {
+      navScrolling = true;
+      navEl.classList.add("is-scrolling");
+    }
+    clearTimeout(navScrollTimer);
+    navScrollTimer = setTimeout(function () {
+      navScrolling = false;
+      navEl.classList.remove("is-scrolling");
+    }, 160);
+  }
+
+  function updateBrains(atY) {
+    if (!brainsEl || REDUCED || LOW) return;
+    var vh = root.innerHeight || doc.documentElement.clientHeight || 0;
+    if (!vh) return;
+    var p = clamp((vh - (brainsTop - atY)) / (vh + brainsHeight), 0, 1);
+    if (Math.abs(p - brainsLastP) < 0.001) return;
+    brainsLastP = p;
+    brainsEl.style.setProperty("--p", p.toFixed(4));
+  }
+
+  function readScroll(atY) {
+    y = atY == null ? scrollPos() : atY;
+    var next = track ? clamp((y - trackTop) / trackSpan, 0, 1) : 0;
+    if (Math.abs(next - progress) > PAINT_EPS) needsPaint = true;
+    progress = next;
+    seekTarget = duration ? progress * duration : 0;
+
+    var shouldPark = !!track && y >= trackEnd;
     if (shouldPark !== parked) {
       parked = shouldPark;
       if (stage) stage.classList.toggle("is-parked", parked);
       if (panelsWrap) panelsWrap.classList.toggle("is-parked", parked);
+      if (chaptersEl) chaptersEl.classList.toggle("is-parked", parked);
+      if (!parked) needsPaint = true;
     }
+
+    updateNav(y);
+    updateBrains(y);
+    updateChapters(progress);
+    schedule();
   }
 
-  function paint() {
+  function paint(force) {
+    if (parked && !force) return;
+    if (!force && painted >= 0 && Math.abs(progress - painted) < PAINT_EPS) return;
+    painted = progress;
+
+    if (POSTER_MOTION && poster && !videoReady) {
+      var sc = 1.03 + progress * 0.045;
+      var ty2 = progress * 16;
+      poster.style.transform =
+        "translate3d(0," + ty2.toFixed(1) + "px,0) scale(" + sc.toFixed(4) + ")";
+    }
+
     for (var i = 0; i < panelEls.length; i++) {
       var el = panelEls[i];
       var c = CUES[i] || CUES[CUES.length - 1];
       var enter = ramp(progress, c[0], c[1]);
       var leave = ramp(progress, c[2], c[3]);
       var opacity = enter * (1 - leave);
-      var y = (1 - enter) * DRIFT - leave * DRIFT;
-      var scale = 0.985 + opacity * 0.015;
 
-      if (REDUCED) el.style.transform = "none";
-      else el.style.transform = "translate3d(0," + y.toFixed(2) + "px,0) scale(" + scale.toFixed(4) + ")";
+      if (opacity <= 0.001) {
+        if (panelShown[i] !== false) {
+          el.style.opacity = "0";
+          panelOp[i] = "0";
+          el.setAttribute("aria-hidden", "true");
+          el.classList.remove("is-visible");
+          panelShown[i] = false;
+        }
+        if (panelHit[i] !== false) {
+          panelHit[i] = false;
+          el.style.pointerEvents = "none";
+        }
+        continue;
+      }
 
-      el.style.opacity = opacity.toFixed(3);
-      el.style.pointerEvents = opacity > 0.6 ? "auto" : "none";
-      el.setAttribute("aria-hidden", opacity > 0.05 ? "false" : "true");
+      if (!(LOW || REDUCED)) {
+        var ty = (1 - enter) * DRIFT - leave * DRIFT;
+        var scale = 0.985 + opacity * 0.015;
+        el.style.transform = "translate3d(0," + ty.toFixed(2) + "px,0) scale(" +
+          scale.toFixed(4) + ")";
+      }
+      var opStr = opacity.toFixed(3);
+      if (panelOp[i] !== opStr) {
+        el.style.opacity = opStr;
+        panelOp[i] = opStr;
+      }
+
+      var show = opacity > 0.05;
+      if (panelShown[i] !== show) {
+        panelShown[i] = show;
+        el.setAttribute("aria-hidden", show ? "false" : "true");
+        el.classList.toggle("is-visible", show);
+      }
+      var hit = opacity > 0.55;
+      if (panelHit[i] !== hit) {
+        panelHit[i] = hit;
+        el.style.pointerEvents = hit ? "auto" : "none";
+      }
     }
   }
 
-  function frame() {
-    if (!doc.hidden) {
-      if (duration && videoReady) {
-        var gap = seekTo - seekAt;
-        if (Math.abs(gap) > 0.0008) {
-          seekAt += gap * 0.115;
-          if (clip && clip.readyState >= 2 && !clip.seeking) {
-            try { clip.currentTime = seekAt; } catch (e) {}
-          }
+  function schedule() {
+    if (frameId || doc.hidden) return;
+    frameId = root.requestAnimationFrame(frame);
+  }
+
+  function frame(ts) {
+    frameId = 0;
+    if (doc.hidden) return;
+
+    var busy = false;
+    if (needsPaint) { needsPaint = false; paint(); }
+
+    if (START_VIDEO && videoReady && duration && !parked) {
+      var gap = seekTarget - seekPos;
+      if (Math.abs(gap) > 0.02) {
+        seekPos += gap * 0.2;
+        // ~20 fps is imperceptible on a 24 fps plate and halves the decode tax
+        if (ts - lastSeek >= 50 && clip && clip.readyState >= 2 && !clip.seeking) {
+          lastSeek = ts;
+          try { clip.currentTime = clamp(seekPos, 0, duration); } catch (e) {}
+        }
+        busy = true;
+      } else if (seekPos !== seekTarget) {
+        seekPos = seekTarget;
+        if (clip && clip.readyState >= 2 && !clip.seeking) {
+          try { clip.currentTime = clamp(seekTarget, 0, duration); } catch (e) {}
         }
       }
-      if (!parked) paint();
     }
-    requestAnimationFrame(frame);
+
+    if (busy) schedule();
   }
 
-  root.addEventListener("scroll", readScroll, { passive: true });
-  root.addEventListener("resize", function () { measure(); readScroll(); }, { passive: true });
-  root.addEventListener("orientationchange", function () { measure(); readScroll(); }, { passive: true });
-  if (doc.fonts && doc.fonts.ready && doc.fonts.ready.then) {
-    doc.fonts.ready.then(function () { measure(); readScroll(); }, function () {});
+  function onScroll() {
+    startClip();
+    readScroll(scrollPos());
+    markScrolling();
   }
+
+  var resizeRaf = 0;
+  function onResize() {
+    if (resizeRaf) return;
+    resizeRaf = root.requestAnimationFrame(function () {
+      resizeRaf = 0;
+      measure();
+    });
+  }
+
+  root.addEventListener("scroll", onScroll, { passive: true });
+  root.addEventListener("resize", onResize, { passive: true });
+  root.addEventListener("orientationchange", onResize, { passive: true });
+  root.addEventListener("load", function () { measure(); }, { passive: true });
+  if (doc.fonts && doc.fonts.ready && doc.fonts.ready.then) {
+    doc.fonts.ready.then(function () { measure(); }, function () {});
+  }
+  doc.addEventListener("visibilitychange", function () {
+    if (doc.hidden) {
+      if (frameId) { root.cancelAnimationFrame(frameId); frameId = 0; }
+    } else {
+      readScroll(scrollPos());
+      schedule();
+    }
+  });
+  root.addEventListener("pageshow", function () { measure(); schedule(); });
+
   measure();
-  readScroll();
-  paint();
-  requestAnimationFrame(frame);
-  root.addEventListener("load", function () { measure(); readScroll(); });
+  paint(true);
+  needsPaint = false;
+  schedule();
 
   /* ======================================================================
      4b. SYSTEMS DRAWING — a tight crop on phones, the full drafting sheet above
@@ -267,17 +467,8 @@
     var toggle = doc.getElementById("navToggle");
     var menu = doc.getElementById("navmenu");
     if (!nav) return;
-
-    var stuck = false;
-    function onScroll() {
-      var y = root.pageYOffset || doc.documentElement.scrollTop || 0;
-      var want = track ? y > trackTop + 40 : y > 40;
-      if (want !== stuck) { stuck = want; nav.classList.toggle("is-stuck", stuck); }
-    }
-    root.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-
     if (!toggle || !menu) return;
+
     var open = false;
     var lastFocus = null;
 
@@ -348,14 +539,32 @@
      ====================================================================== */
   (function plates() {
     var list = Array.prototype.slice.call(doc.querySelectorAll("[data-plate]"));
-    if (!list.length || !FINE) return;
+    if (!list.length || !FINE || !IFRAMES) return;
+
+    var livePlate = null;
+    var hoverTimer = 0;
+    var dropTimer = 0;
+
+    function unmount(plate) {
+      if (!plate) return;
+      var live = plate.querySelector(".work-plate__live");
+      if (live && live.parentNode) live.parentNode.removeChild(live);
+      plate.removeAttribute("data-mounted");
+      plate.classList.remove("is-live", "is-loading");
+      if (livePlate === plate) livePlate = null;
+    }
 
     function mount(plate) {
+      if (livePlate === plate) return;
+      if (livePlate) unmount(livePlate);
       if (plate.getAttribute("data-mounted")) return;
       var url = plate.getAttribute("data-src");
       var slot = plate.querySelector(".work-plate__frame");
       if (!url || !slot) return;
+
       plate.setAttribute("data-mounted", "1");
+      plate.classList.add("is-loading");
+      livePlate = plate;
 
       var live = doc.createElement("iframe");
       live.className = "work-plate__live";
@@ -371,79 +580,49 @@
       var settled = false;
       live.addEventListener("load", function () {
         settled = true;
+        if (livePlate !== plate) return;
+        plate.classList.remove("is-loading");
         plate.classList.add("is-live");
       });
       setTimeout(function () {
-        if (!settled) {
-          plate.removeAttribute("data-mounted");
-          plate.classList.remove("is-live");
-          if (live.parentNode) live.parentNode.removeChild(live);
-        }
-      }, 15000);
+        if (!settled && plate.classList.contains("is-loading")) unmount(plate);
+      }, 12000);
+    }
+
+    function dropLater(plate) {
+      clearTimeout(dropTimer);
+      dropTimer = setTimeout(function () {
+        if (livePlate !== plate) return;
+        if (plate.matches && plate.matches(":hover")) return;
+        if (plate.contains(doc.activeElement)) return;
+        unmount(plate);
+      }, 8000);
     }
 
     list.forEach(function (plate) {
-      plate.addEventListener("pointerenter", function () { mount(plate); }, { passive: true });
-      plate.addEventListener("focusin", function () { mount(plate); });
+      plate.addEventListener("pointerenter", function () {
+        clearTimeout(hoverTimer);
+        hoverTimer = setTimeout(function () { mount(plate); }, 260);
+      }, { passive: true });
+      plate.addEventListener("pointerleave", function () {
+        clearTimeout(hoverTimer);
+        if (livePlate === plate) dropLater(plate);
+      }, { passive: true });
+      plate.addEventListener("focusin", function () {
+        clearTimeout(hoverTimer);
+        mount(plate);
+      });
+      plate.addEventListener("focusout", function () {
+        if (livePlate === plate) dropLater(plate);
+      });
     });
   })();
 
   /* ======================================================================
      8. FOUNDERS — cursor parallax (--px/--py) + scroll drift (--p)
-     The CSS in `.brains` already consumes these variables; this is the
-     driver. Both are inert when motion is reduced; the pointer half only
-     runs on fine pointers.
      ====================================================================== */
   (function founders() {
-    var section = doc.querySelector(".brains");
-    if (!section) return;
-
-    /* --p: 0 as the section enters from below → 1 as it leaves past the
-       top (0.5 when centred). Drives the seam shimmer and the portrait
-       drift. Geometry is measured once and the value derived from
-       scrollY, so a scroll frame does no layout reads; nothing is written
-       unless the value actually moves. */
-    if (!REDUCED) {
-      var secTop = 0, secH = 1, lastP = -1, driftQueued = false;
-
-      function measureBrains() {
-        var y = root.pageYOffset || doc.documentElement.scrollTop || 0;
-        var r = section.getBoundingClientRect();
-        secTop = r.top + y;
-        secH = Math.max(1, r.height);
-      }
-
-      function applyP() {
-        driftQueued = false;
-        var vh = root.innerHeight || doc.documentElement.clientHeight || 0;
-        if (!vh) return;
-        var y = root.pageYOffset || doc.documentElement.scrollTop || 0;
-        var p = clamp((vh - (secTop - y)) / (vh + secH), 0, 1);
-        if (Math.abs(p - lastP) < 0.001) return;
-        lastP = p;
-        section.style.setProperty("--p", p.toFixed(4));
-      }
-
-      function queueP() {
-        if (driftQueued) return;
-        driftQueued = true;
-        requestAnimationFrame(applyP);
-      }
-
-      measureBrains();
-      applyP();
-      root.addEventListener("scroll", queueP, { passive: true });
-      root.addEventListener("resize", function () { measureBrains(); queueP(); }, { passive: true });
-      if (doc.fonts && doc.fonts.ready && doc.fonts.ready.then) {
-        doc.fonts.ready.then(function () { measureBrains(); queueP(); }, function () {});
-      }
-      root.addEventListener("load", function () { measureBrains(); queueP(); });
-    }
-
-    /* --px/--py: normalised pointer position inside the section,
-       eased (0.07 follow, same feel as the /start model), reset to 0 on
-       leave, and the rAF loop parks itself once settled. */
-    if (!FINE || REDUCED) return;
+    if (!brainsEl || !PARALLAX || !FINE) return;
 
     var pxGoal = 0, pyGoal = 0, pxCur = 0, pyCur = 0, running = false;
 
@@ -452,26 +631,35 @@
       pyCur += (pyGoal - pyCur) * 0.07;
       var settled = Math.abs(pxGoal - pxCur) < 0.0005 && Math.abs(pyGoal - pyCur) < 0.0005;
       if (settled) { pxCur = pxGoal; pyCur = pyGoal; }
-      section.style.setProperty("--px", pxCur.toFixed(4));
-      section.style.setProperty("--py", pyCur.toFixed(4));
-      if (settled) { running = false; return; }
-      requestAnimationFrame(easeParallax);
-    }
-    function kick() {
-      if (running) return;
-      running = true;
-      requestAnimationFrame(easeParallax);
+      brainsEl.style.setProperty("--px", pxCur.toFixed(4));
+      brainsEl.style.setProperty("--py", pyCur.toFixed(4));
+      if (settled) {
+        running = false;
+        brainsEl.classList.remove("is-pointer");
+        return;
+      }
+      root.requestAnimationFrame(easeParallax);
     }
 
-    section.addEventListener("pointermove", function (e) {
-      var r = section.getBoundingClientRect();
-      if (!r.width || !r.height) return;
-      pxGoal = clamp(((e.clientX - r.left) / r.width) * 2 - 1, -1, 1);
-      pyGoal = clamp(((e.clientY - r.top) / r.height) * 2 - 1, -1, 1);
+    function kick() {
+      brainsEl.classList.add("is-pointer");
+      if (running) return;
+      running = true;
+      root.requestAnimationFrame(easeParallax);
+    }
+
+    brainsEl.addEventListener("pointermove", function (e) {
+      if (!brainsWidth || !brainsHeight) return;
+      pxGoal = clamp(((e.clientX - brainsLeft) / brainsWidth) * 2 - 1, -1, 1);
+      pyGoal = clamp(((e.clientY - (brainsTop - scrollPos())) / brainsHeight) * 2 - 1, -1, 1);
       kick();
     }, { passive: true });
 
-    section.addEventListener("pointerleave", function () {
+    brainsEl.addEventListener("pointerleave", function () {
+      pxGoal = 0; pyGoal = 0; kick();
+    }, { passive: true });
+
+    brainsEl.addEventListener("pointercancel", function () {
       pxGoal = 0; pyGoal = 0; kick();
     }, { passive: true });
   })();
